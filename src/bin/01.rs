@@ -1,6 +1,9 @@
+use advent_of_code::helpers::as_parts;
+
 
 fn elf_calories (input: &str) -> Vec<u32> {
-    let groups: Vec<&str> = input.split("\n\n").collect();
+    let groups: Vec<&str> = as_parts(input);
+    
     let mut calories: Vec<u32> = groups.iter().map(|group| {
         group.trim().lines().map(|cal| {
             cal.parse::<u32>().unwrap()
