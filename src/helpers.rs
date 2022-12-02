@@ -18,7 +18,7 @@ where <T as FromStr>::Err: Debug {
         .collect()
  }
 
- pub fn as_parts<'a>(input: &'a str) -> Vec<&'a str>{
+ pub fn as_parts(input: &str) -> Vec<&str>{
     Regex::new("\n\n")
         .unwrap()
         .split(input)
