@@ -17,6 +17,7 @@ pub fn part_one(input: &str) -> Option<u32> {
     let mut total_priority = 0;
 
     for rucksack in rucksacks {
+        rucksack.0
         for item in rucksack.0 {
             if rucksack.1.contains(&item) {
                 total_priority += item;
