@@ -29,7 +29,6 @@ impl FileSystem {
             parent: None,
             size: size
         };
-        //Add node to fs node list
         self.nodes.push(node);
         index
     }
@@ -63,42 +62,35 @@ impl FileSystem {
 
     fn get_by_name(&self, parent_idx: usize, name: &str) -> Option<usize> {
         let parent_node = self.nodes.get(parent_idx).unwrap();
-            let mut child: Option<&Node>;
+        let mut child: Option<&Node>;
 
-            for child_idx in &parent_node.children {
-                child = self.nodes.get(*child_idx);
-                if let Some(child) = child {
-                    if child.name == name { 
-                        return Some(child.index);
-                    }
+        for child_idx in &parent_node.children {
+            child = self.nodes.get(*child_idx);
+            if let Some(child) = child {
+                if child.name == name { 
+                    return Some(child.index);
                 }
             }
+        }
 
-            None
+        None
     }
 
-    fn _children(&self, node_idx: usize) -> &Vec<usize> {
-        let node = &self.nodes.get(node_idx).unwrap();
-        &node.children
-    }
-
+    
     fn get_node(&self, node_idx: usize) -> Option<&Node> {
         self.nodes.get(node_idx)
     }
     
+
+    //For debugging, not used in solution
     fn _tree(&self, node_idx: usize, depth: usize) {
-        let node_idxs = self._children(node_idx);
+        let node_idxs = &self.nodes.get(node_idx).unwrap().children;
         for node_idx in node_idxs {
             let node = self.get_node(*node_idx).unwrap();
-            let depth = depth;
-            let pad = 2 * depth;
+            let label = if node.is_directory {"DIR"} else {"FIL"};
 
-            if node.is_directory {
-                println!("{}DIR: {} {}", " ".repeat(pad), node.name, node.size);
-            } else {
-                println!("{}FIL: {} {}", " ".repeat(pad), node.name, node.size);
-            }
-            
+            println!("{}[{}] <{}> {}", " ".repeat(3 * depth), node.name, label, node.size);
+
             self._tree(node.index, depth + 1);
         }
     }
@@ -165,7 +157,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     let root_size = fs.nodes.get(0).unwrap().size;
     let available_space = total_space - root_size;
     let mut ans: usize = total_space;
-    
+
     fs.nodes.into_iter()
         .filter(|node| node.is_directory)
         .for_each(|d| {
