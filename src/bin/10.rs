@@ -1,6 +1,3 @@
-
-
-
 struct CPU {
     tick: i32,
     x_reg: i32,

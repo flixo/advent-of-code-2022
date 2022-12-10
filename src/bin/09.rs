@@ -1,4 +1,4 @@
-use std::ops;
+use std::cmp::max;
 
 #[derive(Debug, PartialEq)]
 struct Vec2 {
@@ -22,8 +22,16 @@ impl Vec2 {
             y: self.y.clamp(-1, 1)
         }
     }
+    fn add (&self, other: &Vec2) -> Vec2 {
+        Vec2::new(self.x + other.x, self.y + other.y)
+    }
+    fn sub (&self, other: &Vec2) -> Vec2 {
+        Vec2::new(self.x - other.x, self.y - other.y)
+    }
+    fn max_abs (&self) -> i32 {
+        max(self.x.abs(), self.y.abs())
+    }
 }
-
 
 struct Rope {
     segments: Vec<Vec2>,
@@ -44,7 +52,8 @@ impl Rope {
 
     fn move_head(&mut self, direction: &Vec2) {
         let mut head = self.segments[0].cloned();
-        
+        let last_seg = self.segments.len()-1;
+
         //Update head
         head.x += direction.x;
         head.y += direction.y;
@@ -52,30 +61,21 @@ impl Rope {
         self.segments[0] = head; 
 
         //Update trailing segments
-        for i in 0..self.segments.len()-1 { 
+        for i in 0..last_seg { 
             let seg_a = self.segments[i].cloned();
-            let mut seg_b = self.segments[i+1].cloned();
-    
-            let distance = Vec2::new(seg_a.x - seg_b.x, seg_a.y - seg_b.y);
+            let mut seg_b = self.segments[i + 1].cloned();
             
-            if distance.x.abs() >= 2 || distance.y.abs() >= 2 {
-                let normalized = &distance.normalized();
-    
-                if distance.y == 0 {
-                    seg_b.x += normalized.x;
-                } else if distance.x == 0 {
-                    seg_b.y += normalized.y;
-                } else { //Diagonal
-                    seg_b.x += normalized.x;
-                    seg_b.y += normalized.y;
-                }
-    
-                if i+1 == self.segments.len()-1 && !self.visited.contains(&seg_b) {
+            let distance = seg_a.sub(&seg_b);
+            
+            if distance.max_abs() >= 2 {
+                seg_b = seg_b.add(&distance.normalized());
+
+                if i+1 == last_seg && !self.visited.contains(&seg_b) {
                     self.visited.push(Vec2::from(&seg_b))
                 }
             }
             
-            self.segments[i+1] = seg_b;
+            self.segments[i + 1] = seg_b;
         }
     }
 
