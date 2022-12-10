@@ -14,10 +14,7 @@ impl Vec2 {
         Vec2 { x: src.x, y: src.y }
     } 
     fn cloned (&self) -> Vec2 {
-        Vec2 {
-            x: self.x,
-            y: self.y
-        }
+        Vec2 { x: self.x, y: self.y }
     }
     fn normalized (&self) -> Vec2 {
         Vec2 {
@@ -27,30 +24,18 @@ impl Vec2 {
     }
 }
 
-impl ops::Add<&Vec2> for &Vec2 {
-    type Output = Vec2;
-    fn add(self, v2: &Vec2) -> Vec2 {
-        Vec2::new(self.x + v2.x, self.y + v2.y)
-    }
-}
-
-impl ops::Sub<&Vec2> for &Vec2 {
-    type Output = Vec2;
-    fn sub(self, v2: &Vec2) -> Vec2 {
-        Vec2::new(self.x - v2.x, self.y - v2.y)
-    }
-}
 
 struct Rope {
-    body: Vec<Vec2>,
+    segments: Vec<Vec2>,
     visited: Vec<Vec2>
 }
 
 impl Rope {
     fn new(parts: usize) -> Rope {
         let start = Vec2::new(0, 0);
+        
         Rope { 
-            body: (0..parts).map(|_| Vec2::from(&start)).collect::<Vec<Vec2>>(),
+            segments: (0..parts).map(|_| Vec2::from(&start)).collect::<Vec<Vec2>>(),
             visited: vec![
                 Vec2::from(&start)
             ]
@@ -58,37 +43,39 @@ impl Rope {
     }
 
     fn move_head(&mut self, direction: &Vec2) {
-        let mut head = self.body[0].cloned();
+        let mut head = self.segments[0].cloned();
         
+        //Update head
         head.x += direction.x;
         head.y += direction.y;
         
-        self.body[0] = head; //Update head
+        self.segments[0] = head; 
 
-        for i in 0..self.body.len()-1 {
-            let seg_1 = self.body[i].cloned();
-            let mut seg_2 = self.body[i+1].cloned();
+        //Update trailing segments
+        for i in 0..self.segments.len()-1 { 
+            let seg_a = self.segments[i].cloned();
+            let mut seg_b = self.segments[i+1].cloned();
     
-            let distance = Vec2::new(seg_1.x - seg_2.x, seg_1.y - seg_2.y);
+            let distance = Vec2::new(seg_a.x - seg_b.x, seg_a.y - seg_b.y);
             
             if distance.x.abs() >= 2 || distance.y.abs() >= 2 {
                 let normalized = &distance.normalized();
     
                 if distance.y == 0 {
-                    seg_2.x += normalized.x;
+                    seg_b.x += normalized.x;
                 } else if distance.x == 0 {
-                    seg_2.y += normalized.y;
+                    seg_b.y += normalized.y;
                 } else { //Diagonal
-                    seg_2.x += normalized.x;
-                    seg_2.y += normalized.y;
+                    seg_b.x += normalized.x;
+                    seg_b.y += normalized.y;
                 }
     
-                if i+1 == self.body.len()-1 && !self.visited.contains(&seg_2) {
-                    self.visited.push(Vec2::from(&seg_2))
+                if i+1 == self.segments.len()-1 && !self.visited.contains(&seg_b) {
+                    self.visited.push(Vec2::from(&seg_b))
                 }
             }
             
-            self.body[i+1] = seg_2;
+            self.segments[i+1] = seg_b;
         }
     }
 
