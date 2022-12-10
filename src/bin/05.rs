@@ -1,6 +1,3 @@
-use std::{str::Split, cmp::min};
-
-use advent_of_code::helpers::as_parts;
 use regex::Regex;
 
 fn parse_input(input: &str) -> (Vec<Vec<char>>, &str) {
